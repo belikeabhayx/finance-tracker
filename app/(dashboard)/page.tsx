@@ -1,10 +1,14 @@
-import { UserButton } from '@clerk/nextjs';
-import React from 'react'
+"use client";
 
-const page = () => {
+import { Button } from "@/components/ui/button";
+import { useNewAccount } from "@/features/accounts/hooks/use-new-account";
+
+export default function Home() {
+  const { onOpen } = useNewAccount();
+
   return (
-    <UserButton afterSignOutUrl='/' />
-  )
+    <div>
+      <Button onClick={onOpen}>Add an account</Button>
+    </div>
+  );
 }
-
-export default page;
