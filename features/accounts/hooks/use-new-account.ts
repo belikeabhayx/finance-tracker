@@ -6,8 +6,13 @@ type NewAccountState = {
   onClose: () => void;
 };
 
+// Inside use-new-account.ts
+
 export const useNewAccount = create<NewAccountState>((set) => ({
   isOpen: false,
-  onOpen: () => set({ isOpen: true }),
+  onOpen: () => {
+    console.log("Opening new account"); // Debug log
+    set({ isOpen: true });
+  },
   onClose: () => set({ isOpen: false }),
 }));
