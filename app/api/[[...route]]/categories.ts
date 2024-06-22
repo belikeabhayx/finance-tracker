@@ -1,12 +1,11 @@
 import { clerkMiddleware, getAuth } from "@hono/clerk-auth";
 import { Hono } from "hono";
-import { and, eq, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { createId } from "@paralleldrive/cuid2";
 import { zValidator } from "@hono/zod-validator";
 
 import { db } from "@/db/drizzle";
-import { accounts, insertAccountsSchema } from "@/db/schema";
-import { z } from "zod";
+import { categories, insertCategoriesSchema } from "@/db/schema";
 
 const app = new Hono()
   .get("/", clerkMiddleware(), async (c) => {
@@ -18,11 +17,11 @@ const app = new Hono()
 
     const data = await db
       .select({
-        id: accounts.id,
-        name: accounts.name,
+        id: categories.id,
+        name: categories.name,
       })
-      .from(accounts)
-      .where(eq(accounts.userId, auth.userId));
+      .from(categories)
+      .where(eq(categories.userId, auth.userId));
     return c.json({ data });
   })
   .post(
@@ -30,7 +29,7 @@ const app = new Hono()
     clerkMiddleware(),
     zValidator(
       "json",
-      insertAccountsSchema.pick({
+      insertCategoriesSchema.pick({
         name: true,
       })
     ),
@@ -43,43 +42,13 @@ const app = new Hono()
       }
 
       const [data] = await db
-        .insert(accounts)
+        .insert(categories)
         .values({
           id: createId(),
           userId: auth.userId,
           ...values,
         })
         .returning();
-
-      return c.json({ data });
-    }
-  )
-  .post(
-    "/bulk-delete",
-    clerkMiddleware(),
-    zValidator(
-      "json",
-      z.object({
-        ids: z.array(z.string()),
-      })
-    ),
-    async (c) => {
-      const auth = getAuth(c);
-      const values = c.req.valid("json");
-
-      if (!auth?.userId) {
-        return c.json({ error: "Unauthorized" }, 401);
-      }
-
-      const data = await db
-        .delete(accounts)
-        .where(
-          and(
-            eq(accounts.userId, auth.userId),
-            inArray(accounts.id, values.ids)
-          )
-        )
-        .returning({ id: accounts.id });
 
       return c.json({ data });
     }
