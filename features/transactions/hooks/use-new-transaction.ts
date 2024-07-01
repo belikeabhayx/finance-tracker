@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-type NewAccountState = {
+type NewTransactionState = {
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
@@ -8,10 +8,9 @@ type NewAccountState = {
 
 // Inside use-new-account.ts
 
-export const useNewAccount = create<NewAccountState>((set) => ({
+export const useNewTransaction = create<NewTransactionState>((set) => ({
   isOpen: false,
   onOpen: () => {
-    console.log("Opening new account"); // Debug log
     set({ isOpen: true });
   },
   onClose: () => set({ isOpen: false }),
